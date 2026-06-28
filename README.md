@@ -5,7 +5,8 @@
 ## 功能范围
 
 - 本地导入 PNG / JPG / WebP 图片
-- Canvas 原图预览、缩放、网格显示、鼠标框选
+- Canvas 原图预览、图片滑块缩放、右键平移图片、单画布网格显示、鼠标框选
+- AI Remove BG：基于四角背景采样生成透明背景源图
 - 截图列表、选择、全选、清空选择
 - Layout Board 拖拽排版
 - 导出：
@@ -76,12 +77,20 @@ docs/api/
 ```text
 用户图片
   -> SourceImagePanel
+  -> GridSettingsPanel 非模态可拖拽参数弹窗
   -> Pinia editor state
   -> CapturedSpritesPanel
   -> LayoutBoardPanel
   -> useTilesetExporter
   -> PNG / TSX / JSON 下载
   -> Mock export record
+
+AI Remove BG
+  -> AiJobApi.removeImageBackground
+  -> Mock remove-background result
+  -> useSpriteSheetCanvas.removeImageBackground
+  -> Pinia replaceSourceImage
+  -> Canvas 重新框选截图
 ```
 
 ## API 文档

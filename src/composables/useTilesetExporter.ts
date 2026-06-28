@@ -93,7 +93,12 @@ export const useTilesetExporter = () => {
     grid: SpriteSheetGridConfig;
     settings: ExportSettings;
     tileCount: number;
+    formats?: Array<'png' | 'tsx' | 'json'>;
   }) => {
+    const formats = params.formats ?? ['png', 'tsx', 'json'];
+    const shouldExportPng = formats.includes('png');
+    const shouldExportTsx = formats.includes('tsx');
+    const shouldExportJson = formats.includes('json');
     const baseName = params.settings.tilesetName || 'tileset-forge-export';
     const pngFileName = `${baseName}.png`;
     const tsxFileName = `${baseName}.tsx`;
@@ -116,9 +121,15 @@ export const useTilesetExporter = () => {
       tileCount: params.tileCount,
     });
 
-    downloadBlob(blob, pngFileName);
-    downloadBlob(new Blob([tsx], { type: 'application/xml;charset=utf-8' }), tsxFileName);
-    downloadBlob(new Blob([JSON.stringify(json, null, 2)], { type: 'application/json;charset=utf-8' }), jsonFileName);
+    if (shouldExportPng) {
+      downloadBlob(blob, pngFileName);
+    }
+    if (shouldExportTsx) {
+      downloadBlob(new Blob([tsx], { type: 'application/xml;charset=utf-8' }), tsxFileName);
+    }
+    if (shouldExportJson) {
+      downloadBlob(new Blob([JSON.stringify(json, null, 2)], { type: 'application/json;charset=utf-8' }), jsonFileName);
+    }
 
     await createExportRecord({
       tilesetName: params.settings.tilesetName,
@@ -128,7 +139,7 @@ export const useTilesetExporter = () => {
       tileHeight: params.grid.tileHeight,
       tileCount: params.tileCount,
       columns: params.settings.columns,
-      formats: ['png', 'tsx', 'json'],
+      formats,
     });
   };
 

@@ -1,6 +1,6 @@
 import { get, post } from '@/api/request';
 import type { ApiResponse } from '@/types/api/common';
-import type { AiJob } from '@/types/business/ai-job';
+import type { AiJob, RemoveBackgroundRequest, RemoveBackgroundResult } from '@/types/business/ai-job';
 
 /**
  * 创建 AI 图像任务
@@ -23,3 +23,14 @@ export const createAiJob = (params: Pick<AiJob, 'assetId' | 'projectId' | 'type'
  */
 export const getAiJob = (params: { readonly jobId: string }): Promise<ApiResponse<AiJob>> =>
   get('/api/ai/jobs/detail', params);
+
+/**
+ * 图片去背景
+ * 功能描述：提交当前源图的去背景处理请求，返回处理结果摘要；像素处理由前端 Canvas 链路完成
+ * 入参：{ assetId?: string, fileName: string, width: number, height: number, strategy: 'corner-sample' }
+ * 返回参数：去背景处理结果摘要
+ * url地址：/api/ai/remove-background
+ * 请求方式：POST
+ */
+export const removeImageBackground = (params: RemoveBackgroundRequest): Promise<ApiResponse<RemoveBackgroundResult>> =>
+  post('/api/ai/remove-background', params);

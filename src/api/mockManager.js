@@ -22,7 +22,7 @@ const defaultConfig = {
     { key: 'cloud-save', label: 'Save to Cloud', enabled: false },
     { key: 'history', label: 'History', enabled: false },
     { key: 'asset-library', label: 'Asset Library', enabled: false },
-    { key: 'ai-remove-bg', label: 'AI Remove BG', enabled: false },
+    { key: 'ai-remove-bg', label: 'AI Remove BG', enabled: true },
     { key: 'collaborate', label: 'Collaborate', enabled: false },
   ],
 };
@@ -102,6 +102,20 @@ registerMockApi('POST', '/api/ai/jobs', (payload) =>
       createdAt: dayjs().toISOString(),
     },
     'AI 任务创建成功',
+  ),
+);
+
+registerMockApi('POST', '/api/ai/remove-background', (payload) =>
+  createSuccessResponse(
+    {
+      jobId: `remove-bg-${Date.now()}`,
+      status: 'completed',
+      strategy: typeof payload === 'object' && payload && 'strategy' in payload ? payload.strategy : 'corner-sample',
+      processedAt: dayjs().toISOString(),
+      transparentBackground: true,
+      message: '已基于四角背景采样生成透明背景图片',
+    },
+    '图片去背景处理成功',
   ),
 );
 

@@ -32,6 +32,35 @@ AiJob = {
 }
 ```
 
+## POST `/api/ai/remove-background`
+
+对当前源图执行去背景处理，返回处理结果摘要。前端根据该摘要在 Canvas 链路中生成透明背景图片。
+
+### Request
+
+```ts
+{
+  assetId?: string
+  fileName: string
+  width: number
+  height: number
+  strategy: 'corner-sample'
+}
+```
+
+### Response
+
+```ts
+RemoveBackgroundResult = {
+  jobId: string
+  status: 'completed'
+  strategy: 'corner-sample'
+  processedAt: string
+  transparentBackground: boolean
+  message: string
+}
+```
+
 ## GET `/api/ai/jobs/detail`
 
 查询异步任务进度。

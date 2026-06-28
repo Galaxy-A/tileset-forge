@@ -63,6 +63,11 @@ export const useSpriteSheetEditorStore = defineStore('sprite-sheet-editor', {
       this.captures = [];
       this.layout = [];
     },
+    replaceSourceImage(sourceImage: SourceImage) {
+      this.sourceImage = sourceImage;
+      this.captures = [];
+      this.layout = [];
+    },
     updateGrid(grid: Partial<SpriteSheetGridConfig>) {
       this.grid = { ...this.grid, ...grid };
     },
