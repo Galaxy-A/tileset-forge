@@ -9,6 +9,7 @@ const defaultConfig = {
     spacing: 0,
     zoom: 100,
     showGrid: true,
+    snapToGrid: false,
   },
   export: {
     tilesetName: 'tileset-forge-export',

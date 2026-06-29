@@ -14,6 +14,7 @@ describe('spriteSheetApi mock contract', () => {
       spacing: 0,
       zoom: 100,
       showGrid: true,
+      snapToGrid: false,
     });
     expect(response.body.export).toMatchObject({
       tilesetName: 'tileset-forge-export',

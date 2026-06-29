@@ -10,6 +10,7 @@ const grid: SpriteSheetGridConfig = {
   spacing: 2,
   zoom: 100,
   showGrid: true,
+  snapToGrid: false,
 };
 
 const settings: ExportSettings = {

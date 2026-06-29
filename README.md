@@ -5,10 +5,10 @@
 ## 功能范围
 
 - 本地导入 PNG / JPG / WebP 图片
-- Canvas 原图预览、图片滑块缩放、右键平移图片、单画布网格显示、鼠标框选
+- Canvas 原图预览、图片滑块缩放、右键平移图片、单画布网格显示、鼠标框选、可选网格标准化框选
 - AI Remove BG：基于四角背景采样生成透明背景源图
 - 截图列表、选择、全选、清空选择
-- Layout Board 拖拽排版
+- Layout Board 拖拽排版，支持按 Tileset 网格自动对齐
 - 导出：
   - `tileset.png`
   - `tileset.tsx`
@@ -79,8 +79,9 @@ docs/api/
   -> SourceImagePanel
   -> GridSettingsPanel 非模态可拖拽参数弹窗
   -> Pinia editor state
+  -> SourceImagePanel 网格标准化框选
   -> CapturedSpritesPanel
-  -> LayoutBoardPanel
+  -> LayoutBoardPanel 网格标准化摆放
   -> useTilesetExporter
   -> PNG / TSX / JSON 下载
   -> Mock export record

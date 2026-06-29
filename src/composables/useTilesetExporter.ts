@@ -19,6 +19,17 @@ const downloadBlob = (blob: Blob, fileName: string) => {
   URL.revokeObjectURL(url);
 };
 
+const sanitizeFileName = (value: string) => value
+  .trim()
+  .replace(/\.png$/i, '')
+  .replace(/[^\p{L}\p{N}._-]+/gu, '-')
+  .replace(/^-+|-+$/g, '') || 'capture';
+
+const dataUrlToBlob = async (dataUrl: string) => {
+  const response = await fetch(dataUrl);
+  return response.blob();
+};
+
 const escapeXml = (value: string) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
 type TilesetMetadataParams = {
@@ -87,6 +98,15 @@ export const useTilesetExporter = () => {
     return { blob, width, height };
   };
 
+  const exportCapturedSprites = async (captures: CapturedSprite[]) => {
+    for (const [index, capture] of captures.entries()) {
+      const blob = await dataUrlToBlob(capture.imageDataUrl);
+      const safeName = sanitizeFileName(capture.name);
+      const duplicateSuffix = captures.length > 1 ? `-${String(index + 1).padStart(2, '0')}` : '';
+      downloadBlob(blob, `${safeName}${duplicateSuffix}.png`);
+    }
+  };
+
   const exportTileset = async (params: {
     captures: CapturedSprite[];
     layout: LayoutItem[];
@@ -144,6 +164,7 @@ export const useTilesetExporter = () => {
   };
 
   return {
+    exportCapturedSprites,
     exportTileset,
   };
 };

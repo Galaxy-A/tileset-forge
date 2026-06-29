@@ -51,6 +51,85 @@ const getCornerAverageColor = (imageData: ImageData): BackgroundColor => {
   };
 };
 
+type GridLineOrientation = 'vertical' | 'horizontal';
+
+type GridLineStyle = {
+  readonly foreground: string;
+  readonly shadow: string;
+  readonly foregroundWidth: number;
+  readonly shadowWidth: number;
+};
+
+const GRID_MAJOR_INTERVAL = 4;
+
+const getGridStep = (grid: SpriteSheetGridConfig) => ({
+  stepX: Math.max(1, grid.tileWidth + grid.spacing),
+  stepY: Math.max(1, grid.tileHeight + grid.spacing),
+  offset: Math.max(0, grid.margin),
+});
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+/** 将画布坐标吸附到网格交点。 */
+export const snapPointToGrid = (point: { readonly x: number; readonly y: number }, grid: SpriteSheetGridConfig) => {
+  const { stepX, stepY, offset } = getGridStep(grid);
+
+  return {
+    x: Math.max(0, offset + Math.round((point.x - offset) / stepX) * stepX),
+    y: Math.max(0, offset + Math.round((point.y - offset) / stepY) * stepY),
+  };
+};
+
+/** 将自由框选区域标准化为完整网格单元区域。 */
+export const snapRectToGrid = (rect: Rect, grid: SpriteSheetGridConfig, bounds: { readonly width: number; readonly height: number }) => {
+  const { stepX, stepY, offset } = getGridStep(grid);
+  const left = Math.min(rect.x, rect.x + rect.width);
+  const right = Math.max(rect.x, rect.x + rect.width);
+  const top = Math.min(rect.y, rect.y + rect.height);
+  const bottom = Math.max(rect.y, rect.y + rect.height);
+  const startColumn = Math.max(0, Math.floor((left - offset) / stepX));
+  const endColumn = Math.max(startColumn + 1, Math.ceil((right - offset) / stepX));
+  const startRow = Math.max(0, Math.floor((top - offset) / stepY));
+  const endRow = Math.max(startRow + 1, Math.ceil((bottom - offset) / stepY));
+  const x = clamp(offset + startColumn * stepX, 0, bounds.width);
+  const y = clamp(offset + startRow * stepY, 0, bounds.height);
+  const rawWidth = offset + (endColumn - 1) * stepX + grid.tileWidth - x;
+  const rawHeight = offset + (endRow - 1) * stepY + grid.tileHeight - y;
+
+  return {
+    x,
+    y,
+    width: Math.max(1, clamp(rawWidth, 1, bounds.width - x)),
+    height: Math.max(1, clamp(rawHeight, 1, bounds.height - y)),
+  };
+};
+
+const drawGridLine = (
+  context: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  orientation: GridLineOrientation,
+  position: number,
+  style: GridLineStyle,
+) => {
+  const drawStroke = (strokeStyle: string, lineWidth: number) => {
+    context.beginPath();
+    context.strokeStyle = strokeStyle;
+    context.lineWidth = lineWidth;
+    if (orientation === 'vertical') {
+      context.moveTo(position, 0);
+      context.lineTo(position, canvas.height);
+      context.stroke();
+      return;
+    }
+    context.moveTo(0, position);
+    context.lineTo(canvas.width, position);
+    context.stroke();
+  };
+
+  drawStroke(style.shadow, style.shadowWidth);
+  drawStroke(style.foreground, style.foregroundWidth);
+};
+
 const drawGrid = (context: CanvasRenderingContext2D, canvas: HTMLCanvasElement, grid: SpriteSheetGridConfig) => {
   if (!grid.showGrid) return;
 
@@ -59,22 +138,28 @@ const drawGrid = (context: CanvasRenderingContext2D, canvas: HTMLCanvasElement, 
   const startX = Math.max(0, grid.margin);
   const startY = Math.max(0, grid.margin);
 
-  context.save();
-  context.strokeStyle = 'rgba(79, 70, 229, .45)';
-  context.lineWidth = 1;
+  const displayScale = Math.max(0.01, grid.zoom / 100);
+  const lineWidth = 1 / displayScale;
+  const lineOffset = lineWidth / 2;
+  const getLineStyle = (index: number): GridLineStyle => {
+    const isMajorLine = index % GRID_MAJOR_INTERVAL === 0;
+    return {
+      foreground: isMajorLine ? 'rgba(120, 180, 255, .62)' : 'rgba(255, 255, 255, .26)',
+      shadow: isMajorLine ? 'rgba(0, 0, 0, .55)' : 'rgba(0, 0, 0, .32)',
+      foregroundWidth: isMajorLine ? lineWidth * 1.15 : lineWidth,
+      shadowWidth: isMajorLine ? lineWidth * 2.8 : lineWidth * 2,
+    };
+  };
 
-  for (let x = startX + 0.5; x <= canvas.width; x += stepX) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, canvas.height);
-    context.stroke();
+  context.save();
+  context.lineCap = 'butt';
+
+  for (let x = startX + lineOffset, index = 0; x <= canvas.width; x += stepX, index += 1) {
+    drawGridLine(context, canvas, 'vertical', x, getLineStyle(index));
   }
 
-  for (let y = startY + 0.5; y <= canvas.height; y += stepY) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(canvas.width, y);
-    context.stroke();
+  for (let y = startY + lineOffset, index = 0; y <= canvas.height; y += stepY, index += 1) {
+    drawGridLine(context, canvas, 'horizontal', y, getLineStyle(index));
   }
 
   context.restore();

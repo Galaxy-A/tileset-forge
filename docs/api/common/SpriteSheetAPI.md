@@ -26,6 +26,7 @@ ApiResponse<T> = {
     spacing: number
     zoom: number
     showGrid: boolean
+    snapToGrid: boolean
   }
   export: {
     tilesetName: string

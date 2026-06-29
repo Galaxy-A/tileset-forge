@@ -101,14 +101,14 @@ onMounted(loadDefaultConfig);
 </script>
 
 <style scoped>
-.sprite-editor-page { height: 100%; display: grid; grid-template-rows: var(--tf-toolbar-height) 1fr; background: var(--tf-color-background); }
-.topbar { height: var(--tf-toolbar-height); display: grid; grid-template-columns: minmax(260px, auto) 1fr; align-items: center; gap: 12px; padding: 0 10px; border-bottom: 1px solid var(--tf-color-border); background: rgba(255,255,255,.86); backdrop-filter: blur(12px); }
+.sprite-editor-page { height: 100%; display: grid; grid-template-rows: var(--tf-toolbar-height) 1fr; background: var(--tf-color-background); color: var(--tf-color-text); }
+.topbar { height: var(--tf-toolbar-height); display: grid; grid-template-columns: minmax(260px, auto) 1fr; align-items: center; gap: 12px; padding: 0 10px; border-bottom: 1px solid #111; background: linear-gradient(180deg, #303030 0%, #252525 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.brand-mark { width: 26px; height: 26px; border-radius: var(--tf-radius-sm); display: grid; place-items: center; background: var(--tf-color-primary); color: #fff; font-size: 12px; font-weight: 800; }
-h1 { margin: 0; font-size: 15px; line-height: 18px; }
+.brand-mark { width: 28px; height: 28px; border-radius: var(--tf-radius-sm); display: grid; place-items: center; background: linear-gradient(135deg, #1473e6, #0d66d0); color: #fff; font-size: 12px; font-weight: 800; box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+h1 { margin: 0; font-size: 15px; line-height: 18px; font-weight: 650; color: var(--tf-color-text); }
 p { margin: 0; font-size: 12px; color: var(--tf-color-text-muted); }
 .future-actions { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; overflow: hidden; }
-.workspace { min-height: 0; min-width: 0; padding: var(--tf-gutter); display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(520px, .95fr); gap: var(--tf-gutter); overflow: hidden; }
+.workspace { min-height: 0; min-width: 0; padding: var(--tf-gutter); display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(520px, .95fr); gap: var(--tf-gutter); overflow: hidden; background: var(--tf-color-workspace); }
 .main-column { min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(420px, 1fr) 210px; gap: var(--tf-gutter); }
 .side-column { min-width: 0; min-height: 0; display: grid; }
 .source-area,

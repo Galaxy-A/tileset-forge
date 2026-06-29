@@ -8,6 +8,7 @@ export const spriteSheetGridConfigSchema = z.object({
   spacing: z.number().int().min(0),
   zoom: z.number().min(25).max(200),
   showGrid: z.boolean(),
+  snapToGrid: z.boolean(),
 });
 
 /** Tiled 导出默认参数。 */

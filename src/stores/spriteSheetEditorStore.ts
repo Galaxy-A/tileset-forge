@@ -19,6 +19,7 @@ const defaultGrid: SpriteSheetGridConfig = {
   spacing: 0,
   zoom: 100,
   showGrid: true,
+  snapToGrid: false,
 };
 
 /** Sprite Sheet 编辑器状态。 */
@@ -77,6 +78,33 @@ export const useSpriteSheetEditorStore = defineStore('sprite-sheet-editor', {
     toggleCapture(id: string, selected: boolean) {
       this.captures = this.captures.map((capture) => (capture.id === id ? { ...capture, selected } : capture));
     },
+    updateCaptureName(id: string, name: string) {
+      const normalizedName = name.trim();
+      if (!normalizedName) return false;
+      const exists = this.captures.some((capture) => capture.id === id);
+      if (!exists) return false;
+      this.captures = this.captures.map((capture) => (capture.id === id ? { ...capture, name: normalizedName } : capture));
+      return true;
+    },
+    syncLayoutZIndexFromCaptureOrder() {
+      const captureOrder = new Map(this.captures.map((capture, index) => [capture.id, index]));
+      this.layout = this.layout.map((item) => ({
+        ...item,
+        zIndex: captureOrder.get(item.captureId) ?? item.zIndex,
+      }));
+    },
+    moveCapture(captureId: string, offset: -1 | 1) {
+      const currentIndex = this.captures.findIndex((capture) => capture.id === captureId);
+      const targetIndex = currentIndex + offset;
+      if (currentIndex < 0 || targetIndex < 0 || targetIndex >= this.captures.length) return false;
+
+      const nextCaptures = [...this.captures];
+      const [movingCapture] = nextCaptures.splice(currentIndex, 1);
+      nextCaptures.splice(targetIndex, 0, movingCapture);
+      this.captures = nextCaptures;
+      this.syncLayoutZIndexFromCaptureOrder();
+      return true;
+    },
     selectAllCaptures() {
       this.captures = this.captures.map((capture) => ({ ...capture, selected: true }));
       this.syncLayoutFromSelection();
@@ -87,16 +115,23 @@ export const useSpriteSheetEditorStore = defineStore('sprite-sheet-editor', {
     },
     syncLayoutFromSelection() {
       const existing = new Map(this.layout.map((item) => [item.captureId, item]));
+      const captureOrder = new Map(this.captures.map((capture, index) => [capture.id, index]));
       this.layout = this.captures
         .filter((capture) => capture.selected)
-        .map((capture, index) => existing.get(capture.id) ?? ({
-          captureId: capture.id,
-          x: (index % this.exportSettings.columns) * capture.width,
-          y: Math.floor(index / this.exportSettings.columns) * capture.height,
-          width: capture.width,
-          height: capture.height,
-          zIndex: index,
-        }));
+        .map((capture, index) => {
+          const zIndex = captureOrder.get(capture.id) ?? index;
+          const existingItem = existing.get(capture.id);
+          if (existingItem) return { ...existingItem, zIndex };
+
+          return {
+            captureId: capture.id,
+            x: (index % this.exportSettings.columns) * capture.width,
+            y: Math.floor(index / this.exportSettings.columns) * capture.height,
+            width: capture.width,
+            height: capture.height,
+            zIndex,
+          };
+        });
     },
     updateLayoutItem(captureId: string, patch: Partial<LayoutItem>) {
       this.layout = this.layout.map((item) => (item.captureId === captureId ? { ...item, ...patch } : item));
